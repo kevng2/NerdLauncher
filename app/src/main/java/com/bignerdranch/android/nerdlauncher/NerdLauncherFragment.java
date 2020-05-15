@@ -4,19 +4,20 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Icon;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -60,11 +61,13 @@ public class NerdLauncherFragment extends Fragment {
     private class ActivityHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private ResolveInfo mResolveInfo;
         private TextView mNameTextView;
+        private ImageView mLogo;
 
-        public ActivityHolder(View itemView) {
-            super(itemView);
-            mNameTextView = (TextView) itemView;
-            mNameTextView.setOnClickListener(this);
+        public ActivityHolder(LayoutInflater inflater, ViewGroup parent) {
+            super(inflater.inflate(R.layout.nerd_fragment, parent, false));
+            mNameTextView = itemView.findViewById(R.id.app_name);
+            mLogo = itemView.findViewById(R.id.logo_image);
+            itemView.setOnClickListener(this);
         }
 
         public void bindActivity(ResolveInfo resolveInfo) {
@@ -72,13 +75,15 @@ public class NerdLauncherFragment extends Fragment {
             PackageManager pm = getActivity().getPackageManager();
             String appName = mResolveInfo.loadLabel(pm).toString();
             mNameTextView.setText(appName);
+            mLogo.setImageDrawable(mResolveInfo.loadIcon(pm));
+            Log.d(TAG, "bindActivity: running");
         }
 
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(Intent.ACTION_MAIN);
             intent.setClassName(mResolveInfo.activityInfo.packageName,
-                    mResolveInfo.activityInfo.name);
+                    mResolveInfo.activityInfo.name).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         }
     }
@@ -94,9 +99,11 @@ public class NerdLauncherFragment extends Fragment {
         @Override
         public ActivityHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(getActivity());
+            /*
             View view = inflater
                     .inflate(android.R.layout.simple_list_item_1, parent, false);
-            return new ActivityHolder(view);
+             */
+            return new ActivityHolder(inflater, parent);
         }
 
         @Override
